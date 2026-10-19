@@ -114,3 +114,25 @@
   .use-cases-grid { grid-template-columns: 1fr; }.use-case { min-height: auto; }.use-case p { min-height: auto; }
   .quiz-section { padding-block: 64px; }.quiz-heading h2 { font-size: 38px; }.quiz-stamp { width: 68px; }.quiz-actions { gap: 16px; }.result-stats { gap: 18px; }
 }
+
+:root[data-theme="dark"] .cycle-step, :root[data-theme="dark"] .type-card, :root[data-theme="dark"] .use-case,
+:root[data-theme="dark"] .quiz-panel, :root[data-theme="dark"] .quiz-result { background: var(--white); border-color: var(--line); }
+:root[data-theme="dark"] .cycle-step { background: #22343a; }
+:root[data-theme="dark"] .cycle-decision, :root[data-theme="dark"] .type-predict { background: #263b31; }
+:root[data-theme="dark"] .type-card:nth-child(2) { background: #263741; }
+:root[data-theme="dark"] .type-card:nth-child(3) { background: #37382e; }
+:root[data-theme="dark"] .cycle-step h3, :root[data-theme="dark"] .type-card h4, :root[data-theme="dark"] .use-case h3,
+:root[data-theme="dark"] .question-title, :root[data-theme="dark"] .quiz-result h3, :root[data-theme="dark"] .result-score { color: #f2f6f3; }
+:root[data-theme="dark"] .cycle-step p, :root[data-theme="dark"] .type-card p, :root[data-theme="dark"] .use-case p { color: #b5c2c3; }
+:root[data-theme="dark"] .example-icon, :root[data-theme="dark"] .answer-option { color: var(--ink); background: #22323a; border-color: var(--line); }
+:root[data-theme="dark"] .answer-option.is-correct { color: #17351b; background: #d8efcf; }
+:root[data-theme="dark"] .answer-option.is-incorrect { color: #642d20; background: #f7ddd4; }
+:root[data-theme="dark"] .answer-option.is-correct .answer-letter { color: #17351b; background: var(--lime); border-color: var(--lime); }
+:root[data-theme="dark"] .answer-option.is-incorrect .answer-letter { color: #fff; background: var(--coral); border-color: var(--coral); }
+:root[data-theme="dark"] .example-row strong { color: #e9f1ec; }
+:root[data-theme="dark"] .example-row { border-color: var(--line); }
+:root[data-theme="dark"] .etl-card { color: var(--ink); background: #1b2a33; }
+:root[data-theme="dark"] .etl-card-accent { background: #263b31; }
+:root[data-theme="dark"] .etl-card h3, :root[data-theme="dark"] .etl-example strong { color: #f2f6f3; }
+:root[data-theme="dark"] .etl-card-top i, :root[data-theme="dark"] .answer-letter { color: #eaf1ed; background: #30434a; border-color: #43565c; }
+:root[data-theme="dark"] .etl-example { border-color: var(--line); }

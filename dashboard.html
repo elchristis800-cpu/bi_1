@@ -10,10 +10,12 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <script src="js/site.js"></script>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <script src="js/data.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="js/dashboard.js" defer></script>
 </head>
 <body class="dashboard-page">
@@ -25,6 +27,10 @@
         <a class="nav-link" href="index.html">Fundamentos</a>
         <a class="nav-link active" href="dashboard.html" aria-current="page">Dashboard <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
       </div>
+      <div class="nav-actions">
+        <button class="nav-icon-button" id="theme-toggle" type="button" aria-label="Cambiar a tema oscuro" title="Cambiar tema"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+        <button class="tour-button" type="button" data-tour-start><i class="bi bi-signpost-split" aria-hidden="true"></i><span>Tour guiado</span></button>
+      </div>
     </nav>
   </header>
   <main id="contenido" class="dashboard-main">
@@ -35,28 +41,31 @@
       </div>
     </section>
     <section class="dashboard-content page-wrap">
-      <div class="filter-bar" aria-label="Filtros del dashboard">
+      <div class="filter-bar" aria-label="Filtros del dashboard" data-tour="filters">
         <div class="filter-field"><label for="team-filter">Equipo</label><select class="form-select" id="team-filter" aria-label="Filtrar y destacar un equipo"><option value="all">Todos los equipos</option></select></div>
         <div class="filter-field round-filter"><div class="round-label-row"><label for="round-filter">Jornada</label><output id="round-output" for="round-filter">15 de 15</output></div><input class="form-range" id="round-filter" type="range" min="1" max="15" value="15" aria-label="Jornada máxima incluida"></div>
-        <button class="reset-button" id="reset-filters" type="button" aria-label="Restablecer todos los filtros"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span>Reset filtros</span></button>
+        <div class="filter-actions">
+          <button class="reset-button" id="reset-filters" type="button" aria-label="Restablecer todos los filtros"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span>Reset filtros</span></button>
+          <button class="export-button" id="export-report" type="button" aria-label="Exportar informe a Excel"><i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i><span>Exportar Excel</span></button>
+        </div>
       </div>
       <div class="dashboard-status" id="dashboard-status" aria-live="polite">Mostrando datos hasta la jornada 15</div>
 
-      <section class="kpi-grid" aria-label="Indicadores clave">
+      <section class="kpi-grid" aria-label="Indicadores clave" data-tour="kpis">
         <article class="kpi-card kpi-goals"><div class="kpi-top"><span>GOLES EN EL TORNEO</span><span class="kpi-icon"><i class="bi bi-bullseye" aria-hidden="true"></i></span></div><div class="kpi-value" id="kpi-goals">0</div><div class="kpi-foot"><span class="kpi-dot"></span><span id="kpi-goals-note">Acumulado de la temporada</span></div></article>
         <article class="kpi-card kpi-leader"><div class="kpi-top"><span>EQUIPO LÍDER</span><span class="kpi-icon"><i class="bi bi-trophy" aria-hidden="true"></i></span></div><div class="kpi-value kpi-leader-value" id="kpi-leader">—</div><div class="kpi-foot"><span class="kpi-dot"></span><span id="kpi-leader-note">0 puntos · 0 PJ</span></div></article>
         <article class="kpi-card kpi-average"><div class="kpi-top"><span>GOLES POR PARTIDO</span><span class="kpi-icon"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></span></div><div class="kpi-value" id="kpi-average">0.0</div><div class="kpi-foot"><span class="kpi-dot"></span><span>Media de la competición</span></div></article>
         <article class="kpi-card kpi-reds"><div class="kpi-top"><span>TARJETAS ROJAS</span><span class="kpi-icon"><i class="bi bi-square-fill" aria-hidden="true"></i></span></div><div class="kpi-value" id="kpi-reds">0</div><div class="kpi-foot"><span class="kpi-dot"></span><span id="kpi-reds-note">Acumuladas en la temporada</span></div></article>
       </section>
 
-      <section class="charts-grid row g-3" aria-label="Gráficas de rendimiento">
+      <section class="charts-grid row g-3" aria-label="Gráficas de rendimiento" data-tour="charts">
         <article class="chart-panel chart-panel-wide col-12 col-lg-7"><div class="panel-heading"><div><p class="panel-kicker">ATAQUE</p><h2>Goles por equipo</h2></div><span class="panel-unit">GOLES · TOP 10</span></div><div class="chart-canvas chart-bars"><canvas id="goals-chart" role="img" aria-label="Gráfico de barras de goles anotados por equipo"></canvas></div></article>
         <article class="chart-panel col-12 col-lg-5"><div class="panel-heading"><div><p class="panel-kicker">MARCADORES</p><h2>Resultados</h2></div><span class="panel-unit" id="results-scope">LIGA</span></div><div class="chart-canvas chart-doughnut"><canvas id="results-chart" role="img" aria-label="Gráfico de dona con victorias locales, empates y victorias visitantes"></canvas></div><div class="result-legend" id="results-legend"></div></article>
         <article class="chart-panel col-12 col-lg-5"><div class="panel-heading"><div><p class="panel-kicker">TENDENCIA</p><h2>Goles por jornada</h2></div><span class="panel-unit">J1 — J15</span></div><div class="chart-canvas chart-line"><canvas id="round-chart" role="img" aria-label="Gráfico lineal de evolución de goles por jornada"></canvas></div></article>
         <article class="chart-panel chart-panel-wide col-12"><div class="panel-heading"><div><p class="panel-kicker">DISCIPLINA</p><h2>Tarjetas por equipo</h2></div><span class="panel-unit">AMARILLAS / ROJAS</span></div><div class="chart-canvas chart-cards"><canvas id="cards-chart" role="img" aria-label="Gráfico horizontal de tarjetas amarillas y rojas por equipo"></canvas></div></article>
       </section>
 
-      <section class="standings-section" aria-labelledby="standings-title">
+      <section class="standings-section" aria-labelledby="standings-title" data-tour="standings">
         <div class="standings-heading"><div><p class="panel-kicker">LA TABLA</p><h2 id="standings-title">Posiciones</h2></div><span class="standings-round" id="standings-round">JORNADA 15</span></div>
         <div class="table-responsive standings-scroll"><table class="table standings-table"><caption class="visually-hidden">Tabla de posiciones de la Liga Pro 2026 hasta la jornada seleccionada</caption><thead><tr><th scope="col">POS</th><th scope="col" class="team-column">EQUIPO</th><th scope="col">PJ</th><th scope="col">PG</th><th scope="col">PE</th><th scope="col">PP</th><th scope="col">GF</th><th scope="col">GC</th><th scope="col">DG</th><th scope="col">PTS</th></tr></thead><tbody id="standings-body"></tbody></table></div>
         <div class="table-key"><span><i class="key-dot key-top"></i>Clasificación continental</span><span><i class="key-dot key-mid"></i>Zona media</span></div>

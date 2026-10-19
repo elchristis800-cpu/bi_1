@@ -56,16 +56,54 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.12; }
 .footer-content p { margin: 0; color: #b7c8d3; font-size: 12px; }
 .footer-content > span { color: #91a6b4; font-size: 10px; font-weight: 700; }
 .footer-brand { transform: scale(.9); transform-origin: left; }
+.nav-actions { display: flex; align-items: center; gap: 9px; }
+.nav-icon-button, .tour-button { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; gap: 8px; color: #e7eff1; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 7px; cursor: pointer; transition: color .2s, background .2s, border-color .2s; }
+.nav-icon-button { width: 38px; padding: 0; font-size: 16px; }
+.tour-button { padding: 0 11px; font-size: 11px; font-weight: 700; }
+.nav-icon-button:hover, .tour-button:hover { color: var(--lime); background: rgba(255,255,255,.14); border-color: rgba(126,217,87,.55); }
+.nav-icon-button:focus-visible, .tour-button:focus-visible, .reset-button:focus-visible, .export-button:focus-visible { outline: 3px solid #f1b95b; outline-offset: 3px; }
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #101a22;
+  --white: #1b2a33;
+  --ink: #e6eeee;
+  --muted: #afbec2;
+  --line: #35474c;
+  --shadow: 0 16px 40px rgba(0,0,0,.22);
+}
+:root[data-theme="dark"] body { background: var(--paper); color: var(--ink); }
+:root[data-theme="dark"] .section-heading h2, :root[data-theme="dark"] .decision-examples h3 { color: #f2f6f3; }
+:root[data-theme="dark"] .eyebrow-dark { color: var(--lime); }
+:root[data-theme="dark"] .quiz-section, :root[data-theme="dark"] .dashboard-page { background: #101a22; }
+:root[data-theme="dark"] .quiz-heading h2 { color: #f2f6f3; }
+
+.tour-backdrop { position: fixed; z-index: 1090; inset: 0; background: rgba(4, 13, 23, .72); animation: tour-fade .2s ease both; }
+.tour-highlight { position: relative !important; z-index: 1091 !important; outline: 3px solid var(--lime) !important; outline-offset: 4px; border-radius: 8px; }
+.tour-dialog { position: fixed; z-index: 1092; right: 18px; bottom: 18px; left: 18px; width: min(440px, calc(100% - 36px)); margin-inline: auto; padding: 23px; color: #eaf1ed; background: #10263a; border: 1px solid rgba(126,217,87,.45); border-radius: 12px; box-shadow: 0 20px 70px rgba(0,0,0,.35); animation: tour-rise .25s ease both; }
+.tour-dialog-top, .tour-dialog-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tour-dialog-top { margin-bottom: 13px; }.tour-count { color: var(--lime); font-size: 10px; font-weight: 700; }
+.tour-close { display: grid; width: 30px; aspect-ratio: 1; place-items: center; color: #d6e1e1; background: rgba(255,255,255,.08); border: 0; border-radius: 6px; cursor: pointer; }
+.tour-dialog h2 { margin: 0 0 8px; color: #fff; font-size: 22px; }.tour-dialog p { margin: 0 0 19px; color: #c0d0d2; font-size: 13px; }
+.tour-dialog-actions { justify-content: flex-end; }.tour-dialog-actions button { min-height: 36px; padding: 0 12px; color: #eaf1ed; background: transparent; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }.tour-dialog-actions button:disabled { cursor: default; opacity: .4; }.tour-dialog-actions .tour-next { color: #10263a; background: var(--lime); border-color: var(--lime); }
+.tour-dialog button:focus-visible { outline: 3px solid #f1b95b; outline-offset: 2px; }
+@keyframes tour-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tour-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 700px) {
   .page-wrap, .nav-shell { width: min(100% - 32px, 560px); }
   .site-header { height: 66px; }
   .nav-link { padding: 9px; font-size: 12px; }
+  .nav-actions { gap: 5px; }.nav-icon-button { width: 34px; min-height: 34px; }.tour-button { width: 34px; min-height: 34px; padding: 0; }.tour-button span { display: none; }
   .content-section { padding-block: 68px; }
   .section-heading { display: block; margin-bottom: 32px; }
   .section-intro { margin-top: 20px; }
   .footer-content { flex-wrap: wrap; }
   .footer-content p { order: 3; width: 100%; }
+}
+
+@media (max-width: 420px) {
+  .nav-shell { gap: 4px; }.brand { gap: 5px; font-size: 12px; }.brand-mark { width: 30px; }.brand-light { font-size: 9px; }.nav-links { gap: 0; }.nav-link { padding-inline: 6px; font-size: 10px; }.nav-actions { gap: 4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

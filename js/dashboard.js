@@ -9,6 +9,7 @@
   const roundFilter = document.querySelector('#round-filter');
   const roundOutput = document.querySelector('#round-output');
   const status = document.querySelector('#dashboard-status');
+  const exportButton = document.querySelector('#export-report');
   const charts = {};
   const colors = { lime: '#7ed957', green: '#57a938', navy: '#0b1f3a', blue: '#69acc0', amber: '#e5b34c', coral: '#e8795b', muted: '#dce4dc' };
 
@@ -81,12 +82,15 @@
 
   /** Actualiza los cuatro gráficos de la vista con el equipo y jornada actuales. */
   const renderCharts = (matches, rows, selectedTeam) => {
+    const darkTheme = document.documentElement.dataset.theme === 'dark';
+    const chartInk = darkTheme ? '#c2d0d2' : '#728087';
+    const chartGrid = darkTheme ? '#35474c' : '#edf0ec';
     const sortedByGoals = [...rows].sort((a, b) => b.goalsFor - a.goalsFor);
     const selectedRow = rows.find((team) => team.id === selectedTeam);
     const focusColor = (team) => team.id === selectedTeam ? colors.lime : colors.blue;
     updateChart('goals', 'goals-chart', {
       type: 'bar', data: { labels: sortedByGoals.map((team) => team.short), datasets: [{ label: 'Goles', data: sortedByGoals.map((team) => team.goalsFor), backgroundColor: sortedByGoals.map(focusColor), borderRadius: 4, maxBarThickness: 32 }] },
-      options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => rows.find((team) => team.short === items[0].label)?.name || items[0].label } } }, scales: { x: { grid: { display: false }, ticks: { color: '#728087', font: { family: 'DM Sans', size: 10 } } }, y: { beginAtZero: true, ticks: { precision: 0, color: '#728087', font: { family: 'DM Sans', size: 10 } }, grid: { color: '#edf0ec' } } } }
+      options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => rows.find((team) => team.short === items[0].label)?.name || items[0].label } } }, scales: { x: { grid: { display: false }, ticks: { color: chartInk, font: { family: 'DM Sans', size: 10 } } }, y: { beginAtZero: true, ticks: { precision: 0, color: chartInk, font: { family: 'DM Sans', size: 10 } }, grid: { color: chartGrid } } } }
     });
 
     const resultCounts = countResults(matches, selectedTeam);
@@ -108,13 +112,13 @@
     });
     updateChart('rounds', 'round-chart', {
       type: 'line', data: { labels: rounds.map((round) => `J${round}`), datasets: [{ label: selectedRow ? `Goles · ${selectedRow.short}` : 'Goles liga', data: goalsByRound, borderColor: selectedTeam === 'all' ? colors.navy : colors.green, backgroundColor: 'rgba(126,217,87,.16)', fill: true, tension: .34, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: selectedTeam === 'all' ? colors.navy : colors.green, borderWidth: 2 }] },
-      options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#728087', font: { family: 'DM Sans', size: 9 }, maxRotation: 0 } }, y: { beginAtZero: true, ticks: { precision: 0, color: '#728087', font: { family: 'DM Sans', size: 9 } }, grid: { color: '#edf0ec' } } } }
+      options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: chartInk, font: { family: 'DM Sans', size: 9 }, maxRotation: 0 } }, y: { beginAtZero: true, ticks: { precision: 0, color: chartInk, font: { family: 'DM Sans', size: 9 } }, grid: { color: chartGrid } } } }
     });
 
     const sortedCards = [...rows].sort((a, b) => b.yellow + b.red - (a.yellow + a.red));
     updateChart('cards', 'cards-chart', {
       type: 'bar', data: { labels: sortedCards.map((team) => team.short), datasets: [{ label: 'Amarillas', data: sortedCards.map((team) => team.yellow), backgroundColor: sortedCards.map((team) => team.id === selectedTeam ? colors.amber : '#e8c66d'), borderRadius: 3, barThickness: 9 }, { label: 'Rojas', data: sortedCards.map((team) => team.red), backgroundColor: sortedCards.map((team) => team.id === selectedTeam ? colors.coral : '#e9a18d'), borderRadius: 3, barThickness: 9 }] },
-      options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 8, boxHeight: 8, color: '#68767d', font: { family: 'DM Sans', size: 9 } } }, tooltip: { mode: 'index', intersect: false } }, scales: { x: { beginAtZero: true, stacked: false, ticks: { precision: 0, color: '#728087', font: { family: 'DM Sans', size: 9 } }, grid: { color: '#edf0ec' } }, y: { grid: { display: false }, ticks: { color: '#52616a', font: { family: 'DM Sans', size: 9 } } } } }
+      options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 8, boxHeight: 8, color: chartInk, font: { family: 'DM Sans', size: 9 } } }, tooltip: { mode: 'index', intersect: false } }, scales: { x: { beginAtZero: true, stacked: false, ticks: { precision: 0, color: chartInk, font: { family: 'DM Sans', size: 9 } }, grid: { color: chartGrid } }, y: { grid: { display: false }, ticks: { color: chartInk, font: { family: 'DM Sans', size: 9 } } } } }
     });
   };
 
@@ -142,6 +146,56 @@
     renderStandings(rows, selectedTeam, maxRound);
   };
 
+  /** Descarga un Excel con resumen, posiciones y partidos del periodo filtrado. */
+  const exportReport = () => {
+    const maxRound = Number(roundFilter.value);
+    const selectedTeam = teamFilter.value;
+    const teamName = selectedTeam === 'all' ? 'Todos los equipos' : league.teams.find((team) => team.id === selectedTeam).name;
+    const leagueMatches = league.matches.filter((match) => match.round <= maxRound);
+    const filteredMatches = leagueMatches.filter((match) => selectedTeam === 'all' || match.homeId === selectedTeam || match.awayId === selectedTeam);
+    const standings = calculateStandings(leagueMatches);
+    const goals = standings.reduce((sum, team) => sum + team.goalsFor, 0);
+    const redCards = standings.reduce((sum, team) => sum + team.red, 0);
+    const generatedAt = new Date().toLocaleString('es-EC');
+    const positionRows = standings.map((team, index) => [index + 1, team.name, team.played, team.wins, team.draws, team.losses, team.goalsFor, team.goalsAgainst, team.goalDifference, team.points]);
+    const matchRows = filteredMatches.map((match) => {
+      const home = league.teams.find((team) => team.id === match.homeId);
+      const away = league.teams.find((team) => team.id === match.awayId);
+      return [match.round, home.name, match.homeGoals, match.awayGoals, away.name, match.yellowHome + match.yellowAway, match.redHome + match.redAway];
+    });
+    const filename = `liga-pro-2026-jornada-${maxRound}`;
+
+    if (window.XLSX) {
+      const workbook = window.XLSX.utils.book_new();
+      const summary = [
+        ['INFORME LIGA PRO 2026', ''], ['Generado', generatedAt], ['Jornada máxima', maxRound], ['Equipo destacado', teamName],
+        ['Partidos incluidos', filteredMatches.length], ['Goles acumulados de la liga', goals],
+        ['Promedio de goles por partido', Number((goals / Math.max(1, leagueMatches.length)).toFixed(2))], ['Tarjetas rojas acumuladas', redCards]
+      ];
+      const summarySheet = window.XLSX.utils.aoa_to_sheet(summary);
+      summarySheet['!cols'] = [{ wch: 32 }, { wch: 28 }];
+      const standingsSheet = window.XLSX.utils.aoa_to_sheet([['Pos', 'Equipo', 'PJ', 'PG', 'PE', 'PP', 'GF', 'GC', 'DG', 'PTS'], ...positionRows]);
+      standingsSheet['!cols'] = [{ wch: 8 }, { wch: 24 }, ...Array.from({ length: 8 }, () => ({ wch: 9 }))];
+      const matchesSheet = window.XLSX.utils.aoa_to_sheet([['Jornada', 'Local', 'Goles local', 'Goles visitante', 'Visitante', 'Amarillas', 'Rojas'], ...matchRows]);
+      matchesSheet['!cols'] = [{ wch: 11 }, { wch: 24 }, { wch: 14 }, { wch: 17 }, { wch: 24 }, { wch: 13 }, { wch: 10 }];
+      window.XLSX.utils.book_append_sheet(workbook, summarySheet, 'Resumen');
+      window.XLSX.utils.book_append_sheet(workbook, standingsSheet, 'Posiciones');
+      window.XLSX.utils.book_append_sheet(workbook, matchesSheet, 'Partidos');
+      window.XLSX.writeFile(workbook, `${filename}.xlsx`);
+      status.textContent = `Informe Excel descargado: ${filename}.xlsx`;
+      return;
+    }
+
+    const csvRows = [['Pos', 'Equipo', 'PJ', 'PG', 'PE', 'PP', 'GF', 'GC', 'DG', 'PTS'], ...positionRows];
+    const csv = `\uFEFF${csvRows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\r\n')}`;
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    link.download = `${filename}-posiciones.csv`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    status.textContent = 'No se pudo cargar la biblioteca Excel. Se descargó la tabla en CSV, compatible con Excel.';
+  };
+
   /** Rellena el selector con los clubes definidos en data.js. */
   league.teams.forEach((team) => {
     const option = document.createElement('option');
@@ -157,5 +211,7 @@
     updateDashboard();
     teamFilter.focus();
   });
+  exportButton.addEventListener('click', exportReport);
+  window.addEventListener('bi:themechange', updateDashboard);
   updateDashboard();
 })();
